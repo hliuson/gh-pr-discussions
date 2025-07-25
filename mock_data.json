@@ -1,0 +1,24 @@
+[
+  {
+    "pr_id": 101,
+    "repo": "example/repo",
+    "merged": true,
+    "comments": [
+      {"author": "alice", "text": "LGTM"},
+      {"author": "bob-bot", "text": "Thanks for the PR!"},
+      {"author": "carol", "text": "This logic might break when input is null"},
+      {"author": "dave", "text": "nit: fix spacing"}
+    ]
+  },
+  {
+    "pr_id": 202,
+    "repo": "example/repo",
+    "merged": true,
+    "comments": [
+      {"author": "alice", "text": "I think this approach is correct and should handle edge cases."},
+      {"author": "bob", "text": "Can you explain why you chose this algorithm?"},
+      {"author": "carol", "text": "Looks good to me."},
+      {"author": "eve", "text": "Great work! This will help with performance."}
+    ]
+  }
+]
