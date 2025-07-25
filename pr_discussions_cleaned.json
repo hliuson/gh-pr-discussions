@@ -1,0 +1,38 @@
+[
+  {
+    "pr_title": "Fix error handling in upload service",
+    "pr_body": "Improve error reporting for invalid tokens.",
+    "pr_number": 1342,
+    "author": "jane-dev",
+    "body": "Should we add a fallback for the 401 case?",
+    "comment_length": 46,
+    "repository": "openai/sample-repo"
+  },
+  {
+    "pr_title": "Update docs",
+    "pr_body": "Minor typo fixes in README.",
+    "pr_number": 1343,
+    "author": "doc-guy",
+    "body": "LGTM",
+    "comment_length": 4,
+    "repository": "openai/sample-repo"
+  },
+  {
+    "pr_title": "Add timeout for retry logic",
+    "pr_body": "Timeout helps prevent hanging on network retries.",
+    "pr_number": 1344,
+    "author": "infra-bot",
+    "body": "nit: extra whitespace",
+    "comment_length": 22,
+    "repository": "openai/sample-repo"
+  },
+  {
+    "pr_title": "Refactor auth token generation",
+    "pr_body": "Split logic into helper function.",
+    "pr_number": 1345,
+    "author": "alice-dev",
+    "body": "This is a great cleanup. Much easier to read now.",
+    "comment_length": 55,
+    "repository": "openai/sample-repo"
+  }
+]
