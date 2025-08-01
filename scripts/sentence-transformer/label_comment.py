@@ -1,8 +1,8 @@
 import json
 import os
 
-INPUT_FILE =  "../../data/comments_for_labeling.json"
-OUTPUT_FILE = "../../data/labeled_comments.json"
+INPUT_FILE =  "../../data/filtered/comments_for_labeling.json"
+OUTPUT_FILE = "../../data/sentence-transformer/labeled_comments.json"
 
 def load_comments():
     if not os.path.exists(INPUT_FILE):
@@ -24,7 +24,7 @@ def label_comment_interactive(comments):
             continue
 
         print("\n📌 Comment:")
-        print(comment["text"])
+        print(comment["comment body"])
         print("Label as:")
         print("  1 = Substantive")
         print("  0 = Low value (LGTM, nit, etc.)")
