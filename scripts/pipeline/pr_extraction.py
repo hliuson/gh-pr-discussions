@@ -1,8 +1,8 @@
 import time
 import re
 import requests
-
-from repo_discovery import repos
+import json
+import base64
 from shared_utils import saveJSON, summaryDisplay, HEADERS, REQUEST_DELAY
 
 ''' Look for Pull Requests that specifically have comments, this is a pivot from the original idea of just taking the most recent prs and filtering them
@@ -90,8 +90,28 @@ def getComments(repo_fullName, pr_number):
 
   return comments
 
+def getPRDiff(repo_fullName, pr_number):
+  url = f"https://api.github.com/repos/{repo_fullName}/pulls/{pr_number}"
+
+  diff_headers = {
+     **HEADERS,
+      'Accept': 'application/vnd.github.v3.diff'
+  }
+
+  #print(f"      Fetching PR diff from: {url}") ################################################## For Debugging
+  time.sleep(REQUEST_DELAY)
+
+  response = requests.get(url, headers=diff_headers)
+
+  if response.status_code != 200:
+    print(f"Error getting PR diff for PR #{pr_number}: {response.status_code}")
+    print(f"      Error details: {response.text[:200]}")
+    return None
+  
+  return response.text
+
 #Filter out comments with patterns of botting and non-substantial info
-def processComments(comments, pr_data):
+def processComments(comments, pr_data, codeDiff):
 
   bot_patterns = [
       'bot', 'Bot', '[bot]', 'github-actions', 'dependabot',
@@ -126,6 +146,10 @@ def processComments(comments, pr_data):
 
     if not (is_bot or is_too_short or is_unwanted or is_minor_fix):
             
+            #print(codeDiff)
+            diff_content = base64.b64encode(codeDiff.encode('utf-8')).decode('utf-8') if codeDiff else ''
+            #print(diff_content)
+            
             cleaned_comment = {
                 'pr_title': pr_data.get('title', 'Unknown'),
                 'pr_body': pr_data.get('body', '')[:500] if pr_data.get('body') else '',
@@ -136,12 +160,21 @@ def processComments(comments, pr_data):
                 'created_at': comment['created_at'],
                 'updated_at': comment['updated_at'],
                 'repository': pr_data.get('repository_full_name', 'Unknown'),
-                'comment_length': len(body)
+                'comment_length': len(body),
+                'diff_length': len(codeDiff) if codeDiff else 0,
+                'code_diff': diff_content[:500]
             } 
+
+            #print(base64.b64decode(cleaned_comment['code_diff']).decode('utf-8')) ################################################## For Debugging
 
             quality_comments.append(cleaned_comment)
 
-    return quality_comments
+  return quality_comments
+
+def getRepos():
+   with open('../../data/high_quality_repos.json', 'r', encoding="utf-8") as f:
+        repos = json.load(f)
+   return repos
   
 def prDiscussionExtraction(repos):
 
@@ -149,7 +182,7 @@ def prDiscussionExtraction(repos):
 
     all_discussions = []
 
-    for i, repo in enumerate(repos[:8]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
+    for i, repo in enumerate(repos[:10]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
         #print(f"\nProcessing repository {i+1}/{min(len(repos), 10)}: {repo['full_name']}")
 
         # Get pull requests
@@ -161,15 +194,17 @@ def prDiscussionExtraction(repos):
         print(f"Found {len(substantial_prs)} substantial PRs")
 
         # Process each PR
-        for pr in substantial_prs[:5]:  # !!!!!IMPORTANT!!!!! Limit PRs per repo
+        for pr in substantial_prs[:10]:  # !!!!!IMPORTANT!!!!! Limit PRs per repo
             #print(f"  Processing PR #{pr['number']}: {pr['title'][:50]}...")
 
             # Get comments
             comments = getComments(repo['full_name'], pr['number'])
-            
+
+            codeDiff = getPRDiff(repo['full_name'], pr['number'])
 
             # Clean and filter comments
-            quality_comments = processComments(comments, pr)
+            quality_comments = processComments(comments, pr, codeDiff)
+
 
             if len(quality_comments) > 0:
               print(f"  Raw comments retrieved: {len(comments)}")
@@ -187,10 +222,10 @@ def prDiscussionExtraction(repos):
     return all_discussions
   
 
-discussions = prDiscussionExtraction(repos)
+discussions = prDiscussionExtraction(getRepos())
 
 print("\n Pipeline completed!")
-print(f" Collected {len(repos)} repositories and {len(discussions)} discussions")
+print(f" Collected {len(getRepos())} repositories and {len(discussions)} discussions")
 print("\n Output files:")
 print("  - high_quality_repos.json")
 print("  - pr_discussions_cleaned.json")

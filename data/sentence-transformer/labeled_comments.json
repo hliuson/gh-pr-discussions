@@ -1,0 +1,32 @@
+[
+  {
+    "pr body": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "comment body": "I'm tired now and will not do anything further extra.\r\nmy both codes were perfect but your checks keeps giving errors IDK why.\r\n",
+    "diff_length": 18371,
+    "label": 0
+  },
+  {
+    "pr body": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "comment body": "Hacktoberfest is strenuous for our team of active volunteer maintainers. That small team now has ___200+ open pull requests___ to review.  We have __high standards for our submissions__ which are described in [`CONTRIBUTING.md`](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md#contributing-guidelines).  Our continuous integration tests help to ensure that our standards are met before we review and merge deserving pull requests.  This is further complicated by the fact that we already have [lots of algorithms](https://github.com/TheAlgorithms/Python/blob/master/DIRECTORY.md) and would like to avoid duplicates.\r\n\r\nFor these reasons, I will **close all open pull requests failing tests** so that our unpaid team has a smaller mountain to climb.  If you want us to land your pull request, please make sure it is not a duplicate and then read [`CONTRIBUTING.md`](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md#contributing-guidelines) _carefully_ and try again.",
+    "diff_length": 18371,
+    "label": 0
+  },
+  {
+    "pr body": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "comment body": "Surely! I understand. I'll try again later.\r\nThanks for the replay :)\r\n",
+    "diff_length": 18371,
+    "label": 0
+  },
+  {
+    "pr body": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "comment body": "@cclauss  Can you please review this I hope this will be merged as all the tests are passing.",
+    "diff_length": 2954,
+    "label": 1
+  },
+  {
+    "pr body": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "comment body": "Your only function, `main()` takes no inputs and returns no outputs and it plots.  This is not an algorithm by this repo's definition.\r\n\r\nhttps://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md#what-is-an-algorithm\r\n#### What is an Algorithm?\r\n\r\nAn Algorithm is one or more functions (or classes) that:\r\n* take one or more inputs,\r\n* perform some internal calculations or data manipulations,\r\n* return one or more outputs,\r\n* have minimal side effects (Ex. `print()`, `plot()`, `read()`, `write()`).",
+    "diff_length": 2954,
+    "label": 1
+  }
+]

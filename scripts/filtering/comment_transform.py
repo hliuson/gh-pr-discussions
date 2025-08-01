@@ -9,9 +9,11 @@ def transform_json_file(input_file, output_file):
         
         # Transform the data
         transformed_data = []
-        for item in data:
+        for item in data[:200]:
             transformed_item = {
-                "text": item.get("pr_body", ""),
+                "pr body": item.get("pr_body", ""),
+                "comment body": item.get("body", ""),
+                "diff_length": item.get("diff_length", 0),
                 "label": None
             }
             transformed_data.append(transformed_item)
@@ -30,4 +32,4 @@ def transform_json_file(input_file, output_file):
     except Exception as e:
         print(f"Error: {str(e)}")
 
-transform_json_file("../../data/pr_discussions_cleaned.json", "../../data/comments_for_labeling.json")
+transform_json_file("../../data/pr_discussions_cleaned.json", "../../data/filtered/comments_for_labeling.json")

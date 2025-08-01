@@ -27,4 +27,4 @@ def transform_repo_format(input_file, output_file):
     except Exception as e:
         print(f"Error: {str(e)}")
 
-transform_repo_format('../../data/high_quality_repos.json', '../../data/transformed_repos.json')
+transform_repo_format('../../data/high_quality_repos.json', '../../data/filtered/transformed_repos.json')
