@@ -2,8 +2,8 @@ import requests
 
 from shared_utils import saveJSON, summaryDisplay, HEADERS, MAX_REPOS
 
-
 # Searches python Repos for at least 1000 stars, 100 forks, and not older than Jan 1st 2024
+
 def searchRepos(language='python', min_stars=1000, min_forks=100):
 
   search_url = "https://api.github.com/search/repositories"
@@ -34,9 +34,25 @@ def searchRepos(language='python', min_stars=1000, min_forks=100):
   return response.json().get('items', [])
 
 #Filter repositories with conditions below and create and return a dictionary with important imfo about the repository
+
 def filterRepos(repos):
 
   quality_repos = []
+
+  avoid_keywords = [
+    'awesome-',                    
+    'free-programming-books',      
+    'big-list-of',                
+    'list of useful',             
+    'list of awesome',            
+    'opinionated list',           
+    'various collection',         
+    'collection of awesome',      
+  ]
+
+  whitelist_repos = [
+    'labmlai/annotated_deep_learning_paper_implementations',  # Actual code implementations
+  ]
 
   for repo in repos:
     if (repo['stargazers_count'] >= 1000 and # Greater than 1000 stars
@@ -68,7 +84,23 @@ def filterRepos(repos):
           'url': repo['html_url']
       }
 
-      quality_repos.append(quality_repo)
+      name_lower = quality_repo['name'].lower()
+      desc_lower = quality_repo.get('description', '').lower()
+
+      if quality_repo['full_name'] in whitelist_repos:
+        print(f"Kept whitelisted repo: {quality_repo['full_name']}")
+        quality_repos.append(quality_repo)
+        continue
+
+      is_directory = any(keyword in name_lower or keyword in desc_lower for keyword in avoid_keywords)
+
+      if is_directory:
+        print(f"Filtered out directory repo: {quality_repo['full_name']}")
+        for keyword in avoid_keywords:
+          if keyword in name_lower or keyword in desc_lower:
+            print(f"   Filtered due to keyword '{keyword}' in {name_lower} or {desc_lower}") ################################################## For Debugging
+      else: 
+        quality_repos.append(quality_repo)
 
   return quality_repos
 
@@ -82,10 +114,10 @@ def repositoryDiscovery():
 
     # Filter for quality
     quality_repos = filterRepos(repos)
-    print(f"Filtered to {len(quality_repos)} high-quality repositories") ################################################## For Debugging
+    print(f"Filtered to {len(quality_repos)} high-quality repositories\n") ################################################## For Debugging
 
     # Save to JSON
-    filename = saveJSON(quality_repos, 'data/high_quality_repos.json')
+    filename = saveJSON(quality_repos, '../../data/high_quality_repos.json')
     summaryDisplay(quality_repos, "repositories")
 
     return quality_repos

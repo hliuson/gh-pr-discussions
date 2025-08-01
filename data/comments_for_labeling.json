@@ -1,0 +1,126 @@
+[
+  {
+    "text": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "label": null
+  },
+  {
+    "text": "### Describe your change:\r\n\r\n\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fail the automated tests.\r\n* [x] This PR only changes one algorithm file.  To ease review, please open sepa",
+    "label": null
+  },
+  {
+    "text": "### Describe your change:\r\n\r\n#fixed issue #11804\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Add or change doctests? -- Note: Please avoid changing both code and tests in a single pull request.\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will no",
+    "label": null
+  },
+  {
+    "text": "### Describe your change:\r\n\r\n* [x] Add an algorithm?\r\n* [ ] Fix a bug or typo in an existing algorithm?\r\n* [ ] Add or change doctests? -- Note: Please avoid changing both code and tests in a single pull request.\r\n* [ ] Documentation change?\r\n\r\n### Checklist:\r\n* [x] I have read [CONTRIBUTING.md](https://github.com/TheAlgorithms/Python/blob/master/CONTRIBUTING.md).\r\n* [x] This pull request is all my own work -- I have not plagiarized.\r\n* [x] I know that pull requests will not be merged if they fai",
+    "label": null
+  },
+  {
+    "text": "## Block Development SDK - Simplifying Block Creation\n\n### Problem\nCurrently, creating a new block requires manual updates to **5+ files** scattered across the codebase:\n- `backend/data/block_cost_config.py` - Manually add block costs\n- `backend/integrations/credentials_store.py` - Add default credentials  \n- `backend/integrations/providers.py` - Register new providers\n- `backend/integrations/oauth/__init__.py` - Register OAuth handlers\n- `backend/integrations/webhooks/__init__.py` - Register we",
+    "label": null
+  },
+  {
+    "text": "Often when I'm trying to `git clone` a project, I'll paste the URL into my terminal expecting it to also contain the `git clone` part. This rule should allow `thefuck` to detect the missing `git clone` and suggest it when someone pastes an SSH or HTTP/HTTP url that ends in `.git`.\r\n\r\nA rule for correcting for double `git clone git clone [repo]` already exists. This rule addresses the opposite problem.\r\n\r\n![image](https://user-images.githubusercontent.com/31365175/169957706-14e2c30d-5f84-4fb1-b59",
+    "label": null
+  },
+  {
+    "text": "",
+    "label": null
+  },
+  {
+    "text": "Love the tool, wanted to contribute and here is the result :)\r\n\r\n- Added a [VSCode devcontainer](https://code.visualstudio.com/docs/remote/containers) to help people get up and running with the repo quicker without needing to install any tooling or do any setup of venv\r\n- Added a new rule to help when some repositories use `main` and some use `master` as the primary integration branch\r\n\r\nFeedback welcome and thanks for the great tooling",
+    "label": null
+  },
+  {
+    "text": "The function git_support can not be useful if a command has the word \"git\" misspelled.\r\nThe purpose of this rule is to unfuck the commands like: gti commit -m 'message'.\r\nWithout this rule, for example, if you try to unfuck this command the result will be:\r\ngit commit -m message. This means that the quotation marks do not return. #1282\r\n\r\nThis rule is generally useful for every git command, in which the word git is misspelled.\r\n\r\nI have also run some tests!",
+    "label": null
+  },
+  {
+    "text": "Getting pyenv_no_such_command.py rule as base, I created an env_no_such_command.py script able to hanlde all env related commands. Transforming, in this way, the pyenv rule in a more global one. \r\n\r\nThis commit was originated and fixes #1074 ",
+    "label": null
+  },
+  {
+    "text": "",
+    "label": null
+  },
+  {
+    "text": "Kafami karistiran bir iki farkli yaklasimi ceviri icerisinde denedim, ornegin orijinal dokumanlarda `abbr` tag'ini bazi kavramlar icin bir kac defa kullanip sonrasinda kullanmayi birakiyordu, ben de buna benzer bir yaklasim sergilemeye calistim. Bunun disinda haddimden fazla yerellestirme yapmis olabilirim, incelemenizde lutfen acimayin ki ortaya duzgun bir sey ciksin 😄 ",
+    "label": null
+  },
+  {
+    "text": "Currently, Whisper defaults to using the CPU on MacOS devices despite the fact that PyTorch has introduced Metal Performance Shaders framework for Apple devices in the nightly release ([more info](https://pytorch.org/blog/introducing-accelerated-pytorch-training-on-mac/)).\r\n\r\nWith my changes to __init__.py, torch checks in MPS is available if torch.device has not been specified. If it is, and CUDA is not available, then Whisper defaults to MPS.\r\n\r\nThis way, Mac users can experience speedups from",
+    "label": null
+  },
+  {
+    "text": "",
+    "label": null
+  },
+  {
+    "text": "This PR introduces a heuristic that determines if a segment is probably a hallucination. If that \"probable\" hallucination occurs after a period of silence (specified by `--hallucination_silence_threshold` in seconds), then we seek past the silence and reprocess from that point. Eliminating the silence before a hallucination improves the likelihood of getting a correct inference, but since this also requires extra processing time, we only do this when a probable hallucination is detected.\r\n\r\nThe ",
+    "label": null
+  },
+  {
+    "text": "Obviously not meant to land, this RP is representative of what it would take to get dynamo working.\r\n\r\ntest_me.py takes 4.4 seconds on main branch\r\ntest_me.py takes 3.2 seconds in this PR\r\n\r\n**Overview:**\r\n1) I took some free audio book of chapter 1 of Charles Dickens' David Copperfield\r\n2) I used an mp3 splitting tool to split it into 8 parts, and then used the util in the model to get 10 chunks of 30 seconds each\r\n3) I \"preheated\" the model with audio part 0, and then ran inference on the othe",
+    "label": null
+  },
+  {
+    "text": "",
+    "label": null
+  },
+  {
+    "text": "The docs and some tests contain references to a master/slave db configuration.\nWhile this terminology has been used for a long time, those terms may carry racially charged meanings to users.\nThis patch replaces all occurrences of master and slave with 'leader' and 'follower'\n",
+    "label": null
+  },
+  {
+    "text": "# Trac ticket number\r\n\r\nticket-373\r\n\r\n# Branch description\r\n\r\nThis branch adds the `CompositePrimaryKey` field. If present, Django will create a composite primary key.\r\n\r\nPlease refer to the [docs](https://github.com/django/django/pull/18056/files#diff-cca8870fcaec19104d999f61553ba925c72e2eb19b4933068c4849f2ce58a6f6) for a more in-depth explanation.\r\n\r\n[Proposal](https://forum.djangoproject.com/t/gsoc-2024-proposal-django-orm-support-for-composite-primary-keys/29146)\r\n[Previous PR](https://githu",
+    "label": null
+  },
+  {
+    "text": "",
+    "label": null
+  },
+  {
+    "text": "Adds jQuery Select2 version 4 to support async select inputs\r\nincluding a search feature.\r\n\r\n**I split the PR in two commits, one is vendoring select2, one contains my code.**\r\n\r\n### Links & Discussions\r\n* [djangoproject#14370](https://code.djangoproject.com/ticket/14370)\r\n* https://groups.google.com/forum/#!topic/django-developers/tCNWnLP8jzM\r\n* https://groups.google.com/forum/#!topic/django-developers/Ip63Xqw01IA/discussion\r\n* https://groups.google.com/forum/#!topic/django-developers/jGgZngTq3",
+    "label": null
+  },
+  {
+    "text": "To accompany the mailing list thread here: https://groups.google.com/forum/?fromgroups=#!topic/django-developers/esCFLLXwIOY\n",
+    "label": null
+  },
+  {
+    "text": "you can use it as follow.\r\nif you put file into \"assets/codes\" folder then you don't need to specify full file path, just name of file is enough otherwise specify full file path.\r\n`if generate_html_file==True` it create a html file with color  highlighted and save it to \"assets/codes/generated_html_files/\" \r\n```python\r\nfrom manimlib.imports import *\r\nclass codeExample(Scene):\r\n    def construct(self):\r\n        heading = TextMobject(\"\\\"Hello, World\\\" Program\", stroke_width=0).scale(1.3)\r\n        ",
+    "label": null
+  },
+  {
+    "text": "Fixed https://github.com/3b1b/manim/issues/1067\r\nNOTE : SurroundingRectangle() only contains visible text.\r\n```Python\r\nclass te(Scene):\r\n    def construct(self):\r\n        text1 = Text(\" ab \", font=\"Consolas\", size=2)\r\n        rect1 = SurroundingRectangle(text1)\r\n        text1.chars[1].set_color(GREEN)\r\n        self.add(text1,rect1)\r\n```\r\nOutput\r\n![te](https://user-images.githubusercontent.com/30471072/81986815-27f5de80-9656-11ea-8eef-9e6a927e28c0.png)\r\n\r\n```python\r\nclass bug1(Scene):\r\n    def co",
+    "label": null
+  },
+  {
+    "text": "Related issue #1017\r\n\r\nCode to reproduce the problem\r\n1. character `'\\n'`\r\n```py\r\nfrom manimlib.imports import *\r\n\r\nclass Test(Scene):\r\n    def construct(self):\r\n        t1 = Text('a\\nb').move_to(UP)\r\n        t2 = Text('123').move_to(DOWN)\r\n        self.play(Transform(t1, t2))\r\n        self.wait()\r\n```\r\n![enter](https://user-images.githubusercontent.com/47266984/81162376-ac45c300-8fbf-11ea-97bf-96c3a18eab17.gif)\r\n\r\n2. character `'\\t'`\r\n```py\r\nfrom manimlib.imports import *\r\n\r\nclass Test(Scene):\r",
+    "label": null
+  },
+  {
+    "text": "<!-- Thanks for contributing to manim!\r\n    Please ensure that your pull request works with the latest version of manim.\r\n-->\r\n## Motivation\r\n<!-- Outline your motivation: In what way do your changes improve the library? -->\r\nThe current `manimlib` is relatively inconsistent with the package specification, so some slight refactoring has been carried out.\r\nAnd added an automation guide for setting `custom_default.yml`\r\n## Proposed changes\r\n<!-- What you changed in those files -->\r\n- Move `manimli",
+    "label": null
+  },
+  {
+    "text": "Hello again @bregman-arie !\r\n\r\nWe added a few answers to already existing questions. Additionally, we created questions about software supply chain, package management and security concerns related to the topics. We are more than happy to hear your feedback and fix potential issues if there are any, and kudos to you and the other contributors in this repo!\r\n\r\nBest regards,\r\n@Akseluhr & @Abdullah1428 ",
+    "label": null
+  },
+  {
+    "text": "Adding more sections on K8s with core concepts and scheduling",
+    "label": null
+  },
+  {
+    "text": "Answered the definition questions for provider, resources and provisioner and those of terraform commands.",
+    "label": null
+  },
+  {
+    "text": "Here I added the appropriate answer for the question.",
+    "label": null
+  },
+  {
+    "text": "Adding answers to questions in https://github.com/bregman-arie/devops-exercises/issues/4. Also added new questions and answers ",
+    "label": null
+  }
+]
