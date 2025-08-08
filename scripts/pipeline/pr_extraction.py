@@ -2,7 +2,6 @@ import time
 import re
 import requests
 import json
-import base64
 from shared_utils import saveJSON, summaryDisplay, HEADERS, REQUEST_DELAY
 
 ''' Look for Pull Requests that specifically have comments, this is a pivot from the original idea of just taking the most recent prs and filtering them
@@ -61,7 +60,8 @@ def filterPRs(prs, repo_fullName):
       if no_comments_count <= 3:
           print(f"    Filtered out PR #{pr.get('number', '?')}: No comments")
     elif pr.get('draft', False):
-      print(f"    Filtered out PR #{pr.get('number', '?')}: Draft PR")
+      pass
+      #print(f"    Filtered out PR #{pr.get('number', '?')}: Draft PR")
 
     #print(f"    Summary: {no_comments_count} PRs with no comments") ################################################## For Debugging
     #print(f"    Found {len(quality_prs)} quality PRs") ################################################## For Debugging
@@ -86,7 +86,7 @@ def getComments(repo_fullName, pr_number):
     return []
 
   comments = response.json()
-  #print(f"      API returned {len(comments)} comments for PR #{pr_number}") ################################################## For Debugging
+  print(f"      API returned {len(comments)} comments for PR #{pr_number}") ################################################## For Debugging
 
   return comments
 
@@ -130,6 +130,7 @@ def processComments(comments, pr_data, codeDiff):
   ]
 
   quality_comments = []
+
   for comment in comments:
     username = comment['user']['login']
     body = comment['body']
@@ -144,32 +145,35 @@ def processComments(comments, pr_data, codeDiff):
 
     is_minor_fix = re.match(r'^(fix:|type:|lint:|format:)', body, re.IGNORECASE)
 
-    if not (is_bot or is_too_short or is_unwanted or is_minor_fix):
-            
-            #print(codeDiff)
-            diff_content = base64.b64encode(codeDiff.encode('utf-8')).decode('utf-8') if codeDiff else ''
-            #print(diff_content)
-            
-            cleaned_comment = {
+    reasons_filtered = []
+    if is_bot:
+        reasons_filtered.append("IS_BOT")
+    if is_too_short:
+        reasons_filtered.append("TOO_SHORT")
+    if is_unwanted:
+        reasons_filtered.append("UNWANTED_PATTERN")
+    if is_minor_fix:
+        reasons_filtered.append("MINOR_FIX")
+        
+    if reasons_filtered:
+        print(f"❌ FILTERED OUT - Reasons: {', '.join(reasons_filtered)}")
+    else:
+        print(f"✅ PASSED - Adding to quality comments")
+        quality_comments.append(body)
+          
+    #quality_comments.append(body)
+
+  cleaned_comment = {
                 'pr_title': pr_data.get('title', 'Unknown'),
                 'pr_body': pr_data.get('body', '')[:500] if pr_data.get('body') else '',
                 'pr_number': pr_data.get('number', 0),
-                'comment_id': comment['id'],
-                'author': username,
-                'body': body,
-                'created_at': comment['created_at'],
-                'updated_at': comment['updated_at'],
+                'comments': quality_comments,
+                'num_comments': len(quality_comments),
                 'repository': pr_data.get('repository_full_name', 'Unknown'),
-                'comment_length': len(body),
                 'diff_length': len(codeDiff) if codeDiff else 0,
-                'code_diff': diff_content[:500]
-            } 
-
-            #print(base64.b64decode(cleaned_comment['code_diff']).decode('utf-8')) ################################################## For Debugging
-
-            quality_comments.append(cleaned_comment)
-
-  return quality_comments
+                'code_diff': codeDiff[:300]
+  }
+  return cleaned_comment
 
 def getRepos():
    with open('../../data/high_quality_repos.json', 'r', encoding="utf-8") as f:
@@ -181,8 +185,9 @@ def prDiscussionExtraction(repos):
     print("=== STAGE 2: PR DISCUSSION EXTRACTION ===")
 
     all_discussions = []
+    critique_data_unfiltered = []
 
-    for i, repo in enumerate(repos[:10]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
+    for i, repo in enumerate(repos[:5]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
         #print(f"\nProcessing repository {i+1}/{min(len(repos), 10)}: {repo['full_name']}")
 
         # Get pull requests
@@ -205,19 +210,34 @@ def prDiscussionExtraction(repos):
             # Clean and filter comments
             quality_comments = processComments(comments, pr, codeDiff)
 
+            #print(quality_comments)
 
             if len(quality_comments) > 0:
               print(f"  Raw comments retrieved: {len(comments)}")
-              print(f"  Quality comments after filtering: {len(quality_comments)}")
+              print(f"  Quality comments after filtering: {quality_comments['num_comments']}")
 
-            all_discussions.extend(quality_comments)
+            #print(pr_with_comments)   
+
+            if quality_comments['num_comments'] > 5:
+                critique_data = {
+                   'comments': quality_comments['comments'],
+                   'code_diff': codeDiff,
+                }
+                critique_data_unfiltered.append(critique_data)
+
+                all_discussions.append(quality_comments)
 
     print(f"\nTotal quality discussions collected: {len(all_discussions)}")
 
-    # Save to JSON
+    #Save to JSON
     if all_discussions:
-        filename = saveJSON(all_discussions, '../../data/pr_discussions_cleaned.json')
+        filename = saveJSON(all_discussions, '../../data/pr_discussions_test.json')
         summaryDisplay(all_discussions, "discussions")
+
+    if critique_data_unfiltered:
+       pass
+        #filename = saveJSON(critique_data_unfiltered, '../../data/filtered/unfiltered_critique_data.json')
+        #summaryDisplay(all_discussions, "discussions")
 
     return all_discussions
   
