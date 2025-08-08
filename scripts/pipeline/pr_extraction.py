@@ -171,7 +171,6 @@ def processComments(comments, pr_data, codeDiff):
                 'num_comments': len(quality_comments),
                 'repository': pr_data.get('repository_full_name', 'Unknown'),
                 'diff_length': len(codeDiff) if codeDiff else 0,
-                'code_diff': codeDiff[:300]
   }
   return cleaned_comment
 
@@ -231,13 +230,8 @@ def prDiscussionExtraction(repos):
 
     #Save to JSON
     if all_discussions:
-        filename = saveJSON(all_discussions, '../../data/pr_discussions_test.json')
+        saveJSON(all_discussions, '../../data/pr_discussions_cleaned.json')
         summaryDisplay(all_discussions, "discussions")
-
-    if critique_data_unfiltered:
-       pass
-        #filename = saveJSON(critique_data_unfiltered, '../../data/filtered/unfiltered_critique_data.json')
-        #summaryDisplay(all_discussions, "discussions")
 
     return all_discussions
   

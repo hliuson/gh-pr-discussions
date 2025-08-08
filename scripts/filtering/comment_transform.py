@@ -10,7 +10,7 @@ def transform_json_file(input_file, output_file):
         # Transform the data
         transformed_data = []
         index = 1
-        for item in data[:5]:
+        for item in data[:34]:
             #print(f"Processing item with PR title: {item.get('pr_title', 'N/A')}")
             for comment in item.get("comments", []):
                 transformed_item = {
@@ -36,4 +36,4 @@ def transform_json_file(input_file, output_file):
     except Exception as e:
         print(f"Error: {str(e)}")
 
-transform_json_file("../../data/pr_discussions_test1.json", "../../data/filtered/comments_for_labeling.json")
+transform_json_file("../../data/pr_discussions_cleaned.json", "../../data/sentence-transformer/comments_for_labeling.json")

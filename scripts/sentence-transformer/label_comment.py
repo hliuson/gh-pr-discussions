@@ -1,8 +1,8 @@
 import json
 import os
 
-INPUT_FILE =  "../../data/filtered/comments_for_labeling.json"
-OUTPUT_FILE = "../../data/sentence-transformer/labeled_comments.json"
+INPUT_FILE =  "../../data/sentence-transformer/comments_for_labeling.json"
+OUTPUT_FILE = "../../data/sentence-transformer/labeled_comments1.json"
 
 def load_comments():
     if not os.path.exists(INPUT_FILE):
@@ -18,18 +18,19 @@ def save_progress(data):
 
 def label_comment_interactive(comments):
     labeled = []
+    print("  1 = Substantive")
+    print("  0 = Low value (LGTM, nit, etc.)")
+    print("  s = Skip")
+    print("  q = Quit")
     for comment in comments:
         if comment.get("label") is not None:
             labeled.append(comment)
             continue
 
-        print("\n📌 Comment:")
-        print(comment["comment body"])
+        print(f"\n\n\n📌 Comment {comment["index"]}:")
+        print(comment["comment"])
         print("Label as:")
-        print("  1 = Substantive")
-        print("  0 = Low value (LGTM, nit, etc.)")
-        print("  s = Skip")
-        print("  q = Quit")
+        
 
         while True:
             label = input("Your label: ").strip().lower()
