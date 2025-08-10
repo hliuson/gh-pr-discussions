@@ -34,13 +34,9 @@ def filter_comments(input_file, output_file, model, classifier):
             for comment, pred, prob in zip(comments, predictions, probabilities):
                 if pred == 1:
                     transformed_comments.append(comment)
-                    if comment_index < 11:
-                        pass
-                        #print(f"\nComment index {comment_index} is substantial \n {comment[:100]} \n")
+                    #print(f"\nComment index {comment_index} is substantial \n {comment[:100]} \n")
                 else:
-                    if comment_index < 11:
-                        pass
-                        #print(f"\nREMOVED comment {comment_index} ==== Score: {pred}(confidence: {prob}) ==== \nComment:{comment[:100]}\n")
+                    print(f"\nREMOVED comment {comment_index} ==== Score: {pred}(confidence: {prob}) ==== \nComment:{comment[:100]}\n")
                 comment_index += 1
 
             transformed_item = {
