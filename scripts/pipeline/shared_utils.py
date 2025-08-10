@@ -1,5 +1,8 @@
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 GITHUB_TOKEN = os.environ.get('MY_GITHUB_TOKEN')
 

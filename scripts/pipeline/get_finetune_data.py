@@ -10,18 +10,22 @@ def get_finetune_data(input_file, output_file):
             data = json.load(file)
         
         transformed_data = []
-        for item in data[:2]:
+        index = 1
+        for item in data:
             repository = item.get("repository", "")
             pr_number = item.get("pr_number", "")
             code_diff = getPRDiff(repository, pr_number)
 
             transformed_item = {
+                "index": index,
                 "repository": repository,
                 "pr_number": pr_number,
                 "comments": item.get("comments", ""),
                 "code_diff": code_diff,
             }
             transformed_data.append(transformed_item)
+            print(f"Processing pr {index} #{pr_number}")
+            index += 1
 
         with open(output_file, 'w', encoding="utf-8") as file:
             json.dump(transformed_data, file, indent=2, ensure_ascii=False)
@@ -59,4 +63,4 @@ def getPRDiff(repo_fullName, pr_number):
   
   return response.text
 
-get_finetune_data("../../data/pr_discussions_test1.json", "../../data/filtered/unfiltered_critique_data.json")
+get_finetune_data("../../data/pr_discussions_cleaned.json", "../../data/filtered/unfiltered_critique_data.json")

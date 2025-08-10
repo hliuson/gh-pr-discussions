@@ -8,9 +8,11 @@ from sklearn.metrics import classification_report, accuracy_score
 import json
 import numpy as np
 import pandas as pd
+import pickle
+import joblib
 
 # Load labeled data
-with open("../../data/sentence-transformer/labeled_comments_formatted.json", "r") as f:
+with open("../../data/sentence-transformer/labeled_comments_formatted.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 texts = [d["text"] for d in data if d["label"] is not None]
@@ -28,7 +30,7 @@ models = {
     'SVM (RBF)': SVC(kernel='rbf', random_state=42, probability=True)
 }
 
-print("Cross-validation comparison")
+print("\n\n\nCross-validation comparison")
 print("="*60)
 
 cv_results = {}
@@ -79,3 +81,34 @@ print(comparison_df.round(3))
 
 print(f"\nBest model (CV): {comparison_df.index[0]}")
 print(f"Best model (Test): {max(test_results.items(), key=lambda x: x[1])[0]}")
+
+
+# Find the best model
+best_model_name = max(test_results.items(), key=lambda x: x[1])[0]
+best_classifier = models[best_model_name]
+
+# Train the best model on full dataset (optional - for better performance)
+best_classifier.fit(embeddings, labels)  # Train on all data instead of just training split
+
+# Save the sentence transformer model
+model.save("../../models/sentence_transformer_model")
+
+# Save the best classifier
+with open("../../models/best_classifier.pkl", "wb") as f:
+    pickle.dump(best_classifier, f)
+
+# Save model metadata
+model_info = {
+    "best_model_name": best_model_name,
+    "test_accuracy": test_results[best_model_name],
+    "cv_mean": cv_results[best_model_name]['mean'],
+    "cv_std": cv_results[best_model_name]['std']
+}
+
+with open("../../models/model_info.json", "w") as f:
+    json.dump(model_info, f, indent=2)
+
+print(f"\nModels saved:")
+print(f"- Sentence Transformer: ../../models/sentence_transformer_model/")
+print(f"- Best Classifier ({best_model_name}): ../../models/best_classifier.pkl")
+print(f"- Model Info: ../../models/model_info.json")
