@@ -111,7 +111,7 @@ def getPRDiff(repo_fullName, pr_number):
   return response.text
 
 #Filter out comments with patterns of botting and non-substantial info
-def processComments(comments, pr_data, codeDiff):
+def processComments(comments, pr_data, codeDiff, index):
 
   bot_patterns = [
       'bot', 'Bot', '[bot]', 'github-actions', 'dependabot',
@@ -164,6 +164,7 @@ def processComments(comments, pr_data, codeDiff):
     #quality_comments.append(body)
 
   cleaned_comment = {
+                'index': index,
                 'pr_title': pr_data.get('title', 'Unknown'),
                 'pr_body': pr_data.get('body', '')[:500] if pr_data.get('body') else '',
                 'pr_number': pr_data.get('number', 0),
@@ -186,7 +187,10 @@ def prDiscussionExtraction(repos):
     all_discussions = []
     critique_data_unfiltered = []
 
-    for i, repo in enumerate(repos[:5]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
+    index = 1
+    repo_num = 10
+    pr_num = 20
+    for i, repo in enumerate(repos[:repo_num]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
         #print(f"\nProcessing repository {i+1}/{min(len(repos), 10)}: {repo['full_name']}")
 
         # Get pull requests
@@ -198,16 +202,17 @@ def prDiscussionExtraction(repos):
         print(f"Found {len(substantial_prs)} substantial PRs")
 
         # Process each PR
-        for pr in substantial_prs[:10]:  # !!!!!IMPORTANT!!!!! Limit PRs per repo
+        for j, pr in enumerate(substantial_prs[:pr_num]):  # !!!!!IMPORTANT!!!!! Limit PRs per repo
             #print(f"  Processing PR #{pr['number']}: {pr['title'][:50]}...")
 
+            print(f"{"="*10} REPO #{i + 1}/{repo_num} PR #{j + 1}/{pr_num} {"="*10}")
             # Get comments
             comments = getComments(repo['full_name'], pr['number'])
 
             codeDiff = getPRDiff(repo['full_name'], pr['number'])
 
             # Clean and filter comments
-            quality_comments = processComments(comments, pr, codeDiff)
+            quality_comments = processComments(comments, pr, codeDiff, index)
 
             #print(quality_comments)
 
@@ -225,6 +230,7 @@ def prDiscussionExtraction(repos):
                 critique_data_unfiltered.append(critique_data)
 
                 all_discussions.append(quality_comments)
+                index += 1
 
     print(f"\nTotal quality discussions collected: {len(all_discussions)}")
 

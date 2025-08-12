@@ -42,16 +42,18 @@ def filter_comments(input_file, output_file, model, classifier):
             transformed_item = {
                 "index": index,
                 "filtered_comments": transformed_comments,
-                "code_diff": item.get("code_diff", "")
+                "code_diff": item.get("code_diff", ""),
+                "diff_length": len(item.get("code_diff", ""))
             }
-            if item.get('code_diff') and len(transformed_comments) >= 4:
+            comment_num = 7
+            if item.get('code_diff') and len(transformed_comments) >= comment_num:
                 transformed_data.append(transformed_item)
                 index += 1
             elif not item.get('code_diff'):
                 print("="*10)
                 print(f"\n!!! REMOVED PR{item.get("pr_number")}, No code diff found\n")
                 print("="*10)
-            elif len(transformed_comments) < 4:
+            elif len(transformed_comments) < comment_num:
                 print("="*10)
                 print(f"\n!!! REMOVED PR{item.get("pr_number")}, comments left after filtering: {len(transformed_comments)}\n")
                 print("="*10)
