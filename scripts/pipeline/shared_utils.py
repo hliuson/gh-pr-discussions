@@ -11,14 +11,14 @@ HEADERS = {
     'Accept': 'application/vnd.github+json'
 }
 
-REQUEST_DELAY = 2
+REQUEST_DELAY = 0.72
 MAX_REPOS = 100
 MAX_PRS_PER_REPO = 10
 
 def saveJSON(data, filename):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"Data saved to {filename}")
+    #print(f"Data saved to {filename}")
     return filename
 
 # Display the info gathered, used for visual of progress or debugging

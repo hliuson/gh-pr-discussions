@@ -182,14 +182,15 @@ def getRepos():
   
 def prDiscussionExtraction(repos):
 
+    filtered_out = 0
     print("=== STAGE 2: PR DISCUSSION EXTRACTION ===")
 
     all_discussions = []
     critique_data_unfiltered = []
 
     index = 1
-    repo_num = 10
-    pr_num = 20
+    repo_num = 30
+    pr_num = 40
     for i, repo in enumerate(repos[:repo_num]):  # !!!!!IMPORTANT!!!!! Limit to first 10 repo for testing
         #print(f"\nProcessing repository {i+1}/{min(len(repos), 10)}: {repo['full_name']}")
 
@@ -205,7 +206,7 @@ def prDiscussionExtraction(repos):
         for j, pr in enumerate(substantial_prs[:pr_num]):  # !!!!!IMPORTANT!!!!! Limit PRs per repo
             #print(f"  Processing PR #{pr['number']}: {pr['title'][:50]}...")
 
-            print(f"{"="*10} REPO #{i + 1}/{repo_num} PR #{j + 1}/{pr_num} {"="*10}")
+            print(f"\n{"="*10} REPO #{i + 1}/{repo_num} PR #{j + 1}/{pr_num} {"="*10}\n")
             # Get comments
             comments = getComments(repo['full_name'], pr['number'])
 
@@ -222,7 +223,7 @@ def prDiscussionExtraction(repos):
 
             #print(pr_with_comments)   
 
-            if quality_comments['num_comments'] > 5:
+            if quality_comments['num_comments'] > 10:
                 critique_data = {
                    'comments': quality_comments['comments'],
                    'code_diff': codeDiff,
@@ -231,13 +232,17 @@ def prDiscussionExtraction(repos):
 
                 all_discussions.append(quality_comments)
                 index += 1
+            else:
+               filtered_out += 1
+            
 
     print(f"\nTotal quality discussions collected: {len(all_discussions)}")
+    print(f"Total PRs filtered out: {filtered_out}")
 
     #Save to JSON
     if all_discussions:
         saveJSON(all_discussions, '../../data/pr_discussions_cleaned.json')
-        summaryDisplay(all_discussions, "discussions")
+        #summaryDisplay(all_discussions, "discussions")
 
     return all_discussions
   
@@ -246,6 +251,3 @@ discussions = prDiscussionExtraction(getRepos())
 
 print("\n Pipeline completed!")
 print(f" Collected {len(getRepos())} repositories and {len(discussions)} discussions")
-print("\n Output files:")
-print("  - high_quality_repos.json")
-print("  - pr_discussions_cleaned.json")

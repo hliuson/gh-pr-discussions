@@ -12,7 +12,7 @@ def searchRepos(language='python', min_stars=1000, min_forks=100):
       f"stars:>{min_stars}",
       f"forks:>{min_forks}",
       f"language:{language}",
-      "pushed:>2024-01-01",
+      "pushed:>2023-01-01",
       "archived:false"
   ]
 
@@ -54,6 +54,7 @@ def filterRepos(repos):
     'labmlai/annotated_deep_learning_paper_implementations',  # Actual code implementations
   ]
 
+  i = 1
   for repo in repos:
     if (repo['stargazers_count'] >= 1000 and # Greater than 1000 stars
         repo['forks_count'] >= 100 and       # More than 100 forks
@@ -67,6 +68,7 @@ def filterRepos(repos):
         not repo['disabled']):               # Look for active Repo part 2
 
       quality_repo = {
+          'index': i,
           'id': repo['id'],
           'name': repo['name'],
           'full_name': repo['full_name'],
@@ -89,6 +91,7 @@ def filterRepos(repos):
 
       if quality_repo['full_name'] in whitelist_repos:
         print(f"Kept whitelisted repo: {quality_repo['full_name']}")
+        i += 1
         quality_repos.append(quality_repo)
         continue
 
@@ -101,6 +104,7 @@ def filterRepos(repos):
             print(f"   Filtered due to keyword '{keyword}' in {name_lower} or {desc_lower}") ################################################## For Debugging
       else: 
         quality_repos.append(quality_repo)
+        i += 1
 
   return quality_repos
 
