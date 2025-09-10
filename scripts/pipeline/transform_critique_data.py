@@ -1,62 +1,42 @@
 import json
 
-def get_model_data(summary_file, codeDiff_file, output_file):
+async def get_model_data(summary_data, codediff_data):
 
     transformed_data = []
     final_data = []
+    index = 0
+    for item in summary_data:
+        transformed_item = {
+            "index": index,
+            "comments": item.get("summarized_comments", ""),
+            "codeDiff": None,
+            "token_estimation": None
+        }
 
-    try:
-        with open(summary_file, 'r', encoding="utf-8") as file:
-            summary = json.load(file)
-        
-        for item in summary:
-            transformed_item = {
-                "comments": item.get("summarized_comments", ""),
-                "codeDiff": None,
-                "token_estimation": None
-            }
-
-            transformed_data.append(transformed_item)
-
-    except FileNotFoundError:
-        print(f"Error: Input file {summary_file} not found.")
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in file '{summary_file}'")
-    except Exception as e:
-        print(f"Error: {str(e)}")
+        transformed_data.append(transformed_item)
     
-    try:
-        with open(codeDiff_file, 'r', encoding="utf-8") as file:
-            cd = json.load(file)
 
-        for i, item in enumerate(cd):
-            transformed_data[i]["codeDiff"] = item.get("codeDiff", "")
+    for i, item in enumerate(codediff_data):
+        transformed_data[i]["codeDiff"] = item.get("diff", "")
 
-        transformed_data = [item for item in transformed_data if item["codeDiff"].strip()]
+    transformed_data = [item for item in transformed_data if item["codeDiff"].strip()]
 
-        for i, item in enumerate(transformed_data):
-            item["token_estimation"] = (len(item.get("comments", "")) + len(item.get("codeDiff", ""))) / 4
+    for i, item in enumerate(transformed_data, 1):
+        item["token_estimation"] = (len(item.get("comments", "")) + len(item.get("codeDiff", ""))) / 4
+        processed_item = preprocess(item)
+        # (len(item.get("codediff", 0)) > 5000 and len(item.get("codediff", 0) < 80000))
+        if ((len(item.get("codeDiff", 0)) > 5000) and (len(item.get("codeDiff", 0)) < 80000)):
+            index += 1
+            processed_item["index"] = index
+            final_data.append(processed_item)
+        else:
+            print(f"Removed codediff of length: {len(item.get("codeDiff", 0))}")
+    
+    print(f"Successfully transformed {len(final_data)} items")
 
-            processed_item = preprocess(item)
+    return final_data
 
-            #print(processed_item)
-            if item.get("tokens", 0) < 32000:
-                final_data.append(processed_item)
-            else:
-                print(f"Removed data with {item.get("tokens", 0)} tokens")
 
-        with open(output_file, 'w', encoding="utf-8") as file:
-            json.dump(final_data, file, indent=2, ensure_ascii=False)
-        
-        print(f"Successfully transformed {len(final_data)} items")
-        print(f"Output written to: {output_file}")
-
-    except FileNotFoundError:
-        print(f"Error: Input file {codeDiff_file} not found.")
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in file '{codeDiff_file}'")
-    except Exception as e:
-        print(f"Error: {str(e)}")
 
 def preprocess(data):
     return {
@@ -64,7 +44,15 @@ def preprocess(data):
         "completion": [
             {"role": "assistant", "content": data["comments"]}
         ],
-        "token_estimation": data["token_estimation"]
     }
 
-get_model_data("../../data/model-training/summarized_comments.json", "../../data/model-training/codeDiff.json", "../../data/model-training/critique_data.json")
+
+# with open("../../data/pipeline/5_summarized_comments.json", "r", encoding='utf-8') as f:
+#     summary_data = json.load(f)
+# with open("../../data/pipeline/6_filtered_codediff.json", 'r', encoding='utf-8') as f:
+#     codediff = json.load(f)
+
+# data = get_model_data(summary_data, codediff)
+
+# with open("../../data/model-training/critique_data2.json", "w", encoding='utf-8') as f:
+#     json.dump(data, f, indent=2, ensure_ascii=False)

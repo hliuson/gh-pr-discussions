@@ -1,6 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -14,6 +15,26 @@ HEADERS = {
 REQUEST_DELAY = 0.72
 MAX_REPOS = 100
 MAX_PRS_PER_REPO = 10
+
+TEST_MODE = True
+ERROR_RATE = 0.3
+
+def log_error(error_type, component, details, iteration=None):
+    error_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "iteration": iteration,
+        "component": component,
+        "error_type": error_type,
+        "details": details
+    }
+
+    error_file = f"../../data/errors/error_log_iter{iteration}.json" if iteration else "../../data/errors/pipeline_errors.json"
+
+    try:
+        with open(error_file, 'a') as f:
+            f.write(json.dumps(error_entry) + '\n')
+    except Exception as e:
+        print(f"Failed to log error: {e}")
 
 def saveJSON(data, filename):
     with open(filename, 'w', encoding='utf-8') as f:

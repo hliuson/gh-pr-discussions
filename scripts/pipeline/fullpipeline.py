@@ -4,6 +4,12 @@ import os
 from datetime import datetime
 
 from extract_prs import prDiscussionExtraction
+from ST_filter_data import filter_comments as st_filter
+from summarize_comments import process_comments_concurrently as summarize
+from filter_codediff import getCodeDiff
+from transform_critique_data import get_model_data as transform_critique
+
+from shared_utils import log_error
 
 input_file = '../../data/pipeline/1_quality_repos.json'
 checkpoint_dir = "../../data/checkpoints"
@@ -84,25 +90,80 @@ def get_resume_point():
     return latest_completed + 1, 0
 
 async def run_iteration(iteration, start_repo):
-    
+
+
+    # Step 1: PR Discussion Extraction
     print(f"\n=== STARTING ITERATION {iteration} ===")
     repo_batch = load_repo_batch(iteration)
+    try:
+        discussions = await prDiscussionExtraction(
+            repo_batch,
+            iteration,
+            checkpoint_callback=save_checkpoint,
+            start_repo=start_repo
+        )
+    except Exception as e:
+        log_error("pipeline_failure", "prDiscussionExtraction", {
+            "iteration": iteration,
+            "error": str(e)
+        }, iteration)
+    # Step 2: Filter with sentence transformer
+    print(f"\n=== FILTERING DATA ===")
 
-    discussions = await prDiscussionExtraction(
-        repo_batch,
-        iteration,
-        checkpoint_callback=save_checkpoint,
-        start_repo=start_repo
-    )
-    #Filter with sentence transformer
-    #Parallel comment summarization + code diff filtering
-    #Transform to critique data
+    try:
+        filtered_data  = await st_filter(discussions)
+    except Exception as e:
+        log_error("pipeline_failure", "st_filter", {
+            "iteration": iteration,
+            "error": str(e),
+            "input_size": len(discussions)
+        }, iteration)
+        raise
 
-    output_file =  f'{critique_dir}critique_data_iter{iteration}.json'
+    # Step 3 & 4: Parallel processing
+    print(f"PARALLEL PROCESSING")
+
+    try:
+        summarized_comments, filtered_codediff = await asyncio.gather(
+            summarize(filtered_data, semaphore_limit=5),
+            getCodeDiff(filtered_data)
+        )
+    except Exception as e:
+        log_error("pipeline_failure", "parallel processing of comments summary and codediff", {
+            "iteration": iteration,
+            "error": str(e)
+        }, iteration)
+        raise
+
+    # Step 5 Transform to critique data
+    print(f"\n=== TRANSFORMING CRITIQUE DATA ===")
+
+    try:
+        critique_data = await transform_critique(summarized_comments, filtered_codediff)
+    except Exception as e:
+        log_error("pipeline_failure", "transform_critique", {
+            "iteration": iteration,
+            "error": str(e)
+        }, iteration)
+
+    output_file =  f'{critique_dir}/critique_data_iter{iteration}.json'
+
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(critique_data, f, indent=2)
+    except Exception as e:
+        log_error("io_failure", "save_critique_data", {
+            "iteration": iteration,
+            "output_file": output_file,
+            "error": str(e)
+        }, iteration)
+        raise
+
+    print(f"Saved {len(critique_data)} critique records to {output_file}")
 
     print(f"\n === COMPLETED ITERATION {iteration} ===")
 
-    #cleanup_checkpoint(iteration)
+    cleanup_checkpoint(iteration)
 
 async def main():
 
@@ -111,9 +172,9 @@ async def main():
     start_iteration, start_repo = get_resume_point()
     print(f"Resuming from iteration {start_iteration}, repo {start_repo}")
 
-    for iteration in range(start_iteration, 3): #TEST change back to 50
+    for iteration in range(start_iteration, 10): #TEST change back to 50
         current_start_repo = start_repo if iteration == start_iteration else 0
-        await run_iteration(iteration, current_start_repo)
+        await run_iteration(iteration + 1, current_start_repo)
 
         if iteration < 49:
             print(f"Sleeping for 1 hour before iteration {iteration + 1}...")

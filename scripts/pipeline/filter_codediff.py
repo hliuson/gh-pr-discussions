@@ -3,7 +3,19 @@ import re
 
 # Filter out codediffs not in bounds 5000-80000 characters
 
-def getCodeDiff(input_file, output_file, index):
+async def getCodeDiff(filtered_data):
+    codeDiff_list = []
+
+    for i, item in enumerate(filtered_data, 1):
+        codeDiff_list.append({
+            "index": i,
+            "diff": item.get("diff", ""),
+        })
+    
+    return codeDiff_list
+
+
+def filterCodeDiff(input_file, output_file, index):
     try:
         with open(input_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -81,5 +93,6 @@ def filter_codediffs(codeDiff):
     
     return re.sub(pattern, filter_diff, codeDiff, flags=re.DOTALL)
 
-
-getCodeDiff("../../data/pipeline/4_filtered_data.json", "../../data/pipeline/6_filtered_codediff.json", 3)
+if __name__ == "__main__":
+    #getCodeDiff("../../data/pipeline/4_filtered_data.json", "../../data/pipeline/6_filtered_codediff.json", 3)
+    pass

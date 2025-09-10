@@ -168,11 +168,27 @@ For the scaled RunPod deployment, these architectural decisions need to be addre
    - Ignore PR count and time elapsed for clean termination logic
 
 6. **Error Handling**: Retry logic for failed repos/PRs and handling of GitHub API errors during long runs
-   - **DECIDED**: Graceful degradation approach with comprehensive error logging
-   - API call failures: Record in error log JSON, skip and continue
-   - Failed repos: Skip and record in error log
-   - Failed iterations: Halt pipeline, retry next hour, skip if fails twice
-   - Rate limiting/network issues: Ignore (let natural delays handle it)
+   - **DECIDED**: Multi-level retry architecture with comprehensive error logging
+   
+   **API-Level Retry Logic:**
+   - 3 retry attempts with exponential backoff (1s, 2s, 4s)
+   - Handle specific HTTP codes: 429 (rate limit), 502/503 (server errors), timeouts
+   - Log each retry attempt with error details
+   
+   **Repo-Level Error Handling:**
+   - If all API retries for a repo fail → skip repo, log error, continue
+   - Update checkpoint with failed repo list
+   - Don't halt entire iteration for single repo failure
+   
+   **Iteration-Level Retry:**
+   - Failed iterations: Halt pipeline, retry entire iteration once after 1 hour
+   - If second attempt fails → skip iteration, log, continue to next
+   - Track iteration success/failure rates
+   
+   **Structured Error Logging:**
+   - `error_log_iter{N}.json` per iteration with structured failure data
+   - Aggregate `pipeline_errors.json` for full run analysis
+   - Track: timestamp, error_type, repo_id, api_endpoint, http_status, retry_count, final_action
 
 ## Progress Persistence & Recovery Strategy
 

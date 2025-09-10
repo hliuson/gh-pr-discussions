@@ -1,77 +1,70 @@
 from sentence_transformers import SentenceTransformer
 import pickle
-import json
+
+from shared_utils import TEST_MODE
+import random
 
 def load_models():
+
     model = SentenceTransformer("../../models/sentence_transformer_model")
     with open("../../models/best_classifier.pkl", "rb") as f:
         classifier = pickle.load(f)
 
-    with open("../../models/model_info.json", "r") as f:
-        model_info = json.load(f)
+    # with open("../../models/model_info.json", "r") as f:
+    #     model_info = json.load(f)
 
-    return model, classifier, model_info
+    return model, classifier
 
     
 
-def filter_comments(input_file, output_file, model, classifier):
-    try:
-        with open(input_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+async def filter_comments(data):
 
-        transformed_data = []
-        index = 1
-        for item in data:
-            comments = item.get("comments", [])
-            transformed_comments = []
+    model, classifier = load_models()
 
-            #print(comments)
-            embeddings = model.encode(comments)
-            predictions = classifier.predict(embeddings)
-            probabilities = classifier.predict_proba(embeddings)
+    transformed_data = []
+    index = 1
+    for item in data:
+        comments = item.get("comments", [])
+        transformed_comments = []
 
-            comment_index = 0
-            for comment, pred, prob in zip(comments, predictions, probabilities):
-                if pred == 1:
-                    transformed_comments.append(comment)
-                    #print(f"\nComment index {comment_index} is substantial \n {comment[:100]} \n")
-                else:
-                    print(f"\nREMOVED comment {comment_index} ==== Score: {pred}(confidence: {prob}) ==== \nComment:{comment[:100]}\n")
-                comment_index += 1
+        #print(comments)
+        embeddings = model.encode(comments)
+        predictions = classifier.predict(embeddings)
+        probabilities = classifier.predict_proba(embeddings)
 
-            transformed_item = {
-                "index": index,
-                "filtered_comments": transformed_comments,
-                "diff": item.get("diff", ""),
-                "diff_length": item.get("diff_length", "")
-            }
-            comment_num = 7
-            if item.get('diff') and len(transformed_comments) >= comment_num:
-                transformed_data.append(transformed_item)
-                index += 1
-            elif not item.get('diff'):
-                print("="*10)
-                print(f"\n!!! REMOVED PR{item.get("pr_number")}, No code diff found\n")
-                print("="*10)
-            elif len(transformed_comments) < comment_num:
-                print("="*10)
-                print(f"\n!!! REMOVED PR{item.get("pr_number")}, comments left after filtering: {len(transformed_comments)}\n")
-                print("="*10)
-            
-            
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(transformed_data, f, indent=2, ensure_ascii=False)
-        
-        print(f"Successfully transformed {len(transformed_data)} items")
-        print(f"Output written to: {output_file}")
+        comment_index = 0
+        for comment, pred, prob in zip(comments, predictions, probabilities):
+            if pred == 1:
+                transformed_comments.append(comment)
+                #print(f"\nComment index {comment_index} is substantial \n {comment[:100]} \n")
+            else:
+                #print(f"\nREMOVED comment {comment_index} ==== Score: {pred}(confidence: {prob}) ==== \nComment:{comment[:100]}\n")
+                pass
+            comment_index += 1
 
-    except FileNotFoundError:
-        print(f"Error: Input file '{input_file}' not found")
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in file '{input_file}'")
-    except Exception as e:
-        print(f"Error: {str(e)}")
+        transformed_item = {
+            "index": index,
+            "filtered_comments": transformed_comments,
+            "diff": item.get("diff", ""),
+            "diff_length": item.get("diff_length", "")
+        }
+        comment_num = 7
+        if item.get('diff') and len(transformed_comments) >= comment_num:
+            transformed_data.append(transformed_item)
+            index += 1
+        elif not item.get('diff'):
+            print("="*10)
+            print(f"\n!!! REMOVED PR{item.get("pr_number")}, No code diff found\n")
+            print("="*10)
+        elif len(transformed_comments) < comment_num:
+            print("="*10)
+            print(f"\n!!! REMOVED PR{item.get("pr_number")}, comments left after filtering: {len(transformed_comments)}\n")
+            print("="*10)
+    
+    print(f"Successfully transformed {len(transformed_data)} items")
+
+    return transformed_data
+
 
 def test():
     model, classifier, model_info = load_models()
@@ -88,8 +81,9 @@ def test():
         print(f"Comment: {text}")
         print(f"Prediction: {pred} (confidence: {max(prob):.3f})")
 
-def run_classifier():
-    model, classifier, model_info = load_models()
-    filter_comments("../../data/pipeline/2_unfiltered_pr.json", "../../data/pipeline/3_filtered_data.json", model, classifier)
+# def run_classifier():
+#     model, classifier, model_info = load_models()
+#     filter_comments("../../data/pipeline/2_unfiltered_pr.json", "../../data/pipeline/3_filtered_data.json", model, classifier)
 
-run_classifier()
+# if __name__ == "__main__":
+#     run_classifier()

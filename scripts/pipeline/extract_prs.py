@@ -1,15 +1,13 @@
-import time
 import re
-import requests
 import aiohttp
+import random
 import asyncio
 import json
-from shared_utils import saveJSON, summaryDisplay, HEADERS, REQUEST_DELAY
+from shared_utils import saveJSON, log_error, HEADERS, TEST_MODE, ERROR_RATE
 import os
 
 ''' Look for Pull Requests that specifically have comments, this is a pivot from the original idea of just taking the most recent prs and filtering them
 since many of the new prs(up to 100, when I tested) had no comments'''
-
 
 
 def getRepos():
@@ -20,37 +18,48 @@ def getRepos():
 
 
 async def searchPRsWithComments(session, repo_fullName, max_prs=50):
-
-    search_url = "https://api.github.com/search/issues"
-
-    await asyncio.sleep(2.5)
-
-    # Search for PRs with comments in this specific repo
-    query = f"repo:{repo_fullName} type:pr comments:>0"
-
-    params = {
-        'q': query,
-        'sort': 'comments',     # Sort by number of comments
-        'order': 'desc',        # Most comments first
-        'per_page': max_prs
-    }
-
     try:
-       async with session.get(search_url, headers=HEADERS, params=params) as response:
-          if response.status != 200:
-             print(f"Error searching PRs for {repo_fullName}: {response.status}")
-             return []
-          
-          data = await response.json()
-          prs = data.get("items", [])
+    
+      if TEST_MODE and random.random() < ERROR_RATE:
+        raise aiohttp.ClientError("Simulated network timeout")
 
-          for pr in prs:
-            pr['repository_full_name'] = repo_fullName
+      search_url = "https://api.github.com/search/issues"
 
-          return prs
+      await asyncio.sleep(2.5)
+
+      # Search for PRs with comments in this specific repo
+      query = f"repo:{repo_fullName} type:pr comments:>0"
+
+      params = {
+          'q': query,
+          'sort': 'comments',     # Sort by number of comments
+          'order': 'desc',        # Most comments first
+          'per_page': max_prs
+      }
+
+      try:
+        async with session.get(search_url, headers=HEADERS, params=params) as response:
+            if response.status != 200:
+              print(f"Error searching PRs for {repo_fullName}: {response.status}")
+              return []
+            
+            data = await response.json()
+            prs = data.get("items", [])
+
+            for pr in prs:
+              pr['repository_full_name'] = repo_fullName
+
+            return prs
+      except Exception as e:
+        print(f"Error fetching PRs for {repo_fullName}: {e}")
+        return []
     except Exception as e:
-      print(f"Error fetching PRs for {repo_fullName}: {e}")
-      return []
+       log_error("api_failure", "searchPRsWithComments", {
+          "repo": repo_fullName,
+          "error": str(e),
+          "simulated": TEST_MODE
+       })
+       raise
 
 
 
@@ -90,18 +99,30 @@ def filterPRs(prs, repo_fullName):
 #Get the comments from the chosen quality PRs
 async def getComments(session, repo_fullName, pr_number):
 
-  url = f"https://api.github.com/repos/{repo_fullName}/issues/{pr_number}/comments"
-
   try:
-     async with session.get(url, headers=HEADERS) as response:
-        if response.status != 200:
-           print(f"Error searching PRs for {repo_fullName}: {response.status}")
-           return []
-        
-        comments = await response.json()
-        return comments
+    if TEST_MODE and random.random() < 0.1:
+        raise aiohttp.ClientResponseError(None, None, status=429)
+
+    url = f"https://api.github.com/repos/{repo_fullName}/issues/{pr_number}/comments"
+
+    try:
+      async with session.get(url, headers=HEADERS) as response:
+          if response.status != 200:
+            print(f"Error searching PRs for {repo_fullName}: {response.status}")
+            return []
+          
+          comments = await response.json()
+          return comments
+    except Exception as e:
+      print(f"Error fetching comments for PR #{pr_number}: {e}")
+      return []
   except Exception as e:
-     print(f"Error fetching comments for PR #{pr_number}: {e}")
+     log_error("api_failure", "getComments", {
+        "repo": repo_fullName,
+        "pr_number": pr_number,
+        "error": str(e),
+        "simulated": TEST_MODE
+     })
      return []
   
 
@@ -109,24 +130,32 @@ async def getComments(session, repo_fullName, pr_number):
 async def getDiff(session, repo_fullName, pr_number):
       """Get PR diff - now async"""
 
-      url = f"https://api.github.com/repos/{repo_fullName}/pulls/{pr_number}"
-
-      diff_headers = {
-          **HEADERS,
-          'Accept': 'application/vnd.github.v3.diff'
-      }
-
       try:
-          async with session.get(url, headers=diff_headers) as response:
-              if response.status != 200:
-                  print(f"Error getting PR diff for PR #{pr_number}: {response.status}")
-                  return None
+        url = f"https://api.github.com/repos/{repo_fullName}/pulls/{pr_number}"
 
-              return await response.text()
+        diff_headers = {
+            **HEADERS,
+            'Accept': 'application/vnd.github.v3.diff'
+        }
 
+        try:
+            async with session.get(url, headers=diff_headers) as response:
+                if response.status != 200:
+                    print(f"Error getting PR diff for PR #{pr_number}: {response.status}")
+                    return None
+
+                return await response.text()
+
+        except Exception as e:
+            print(f"Error fetching diff for PR #{pr_number}: {e}")
+            return None
       except Exception as e:
-          print(f"Error fetching diff for PR #{pr_number}: {e}")
-          return None
+         log_error("api_failure", "getDiff", {
+            "repo": repo_fullName,
+            "pr_number": pr_number,
+            "error": str(e)
+         })
+         return None
 
 
 
@@ -229,8 +258,8 @@ async def prDiscussionExtraction(repos, iteration=0, checkpoint_callback=None, s
 
     semaphore = asyncio.Semaphore(15)
     index = 1
-    num_repo = 3 #change to 40
-    pr_per = 5 #change to 60
+    num_repo = 6 #change to 40
+    pr_per = 10 #change to 60
 
     async with aiohttp.ClientSession() as session:
 
