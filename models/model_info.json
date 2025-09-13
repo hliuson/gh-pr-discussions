@@ -1,0 +1,6 @@
+{
+  "best_model_name": "Random Forest",
+  "test_accuracy": 0.8431372549019608,
+  "cv_mean": 0.8425742574257425,
+  "cv_std": 0.021998084890786467
+}
