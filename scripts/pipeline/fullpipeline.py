@@ -9,7 +9,8 @@ from summarize_comments import process_comments_concurrently as summarize
 from filter_codediff import getCodeDiff
 from transform_critique_data import get_model_data as transform_critique
 
-from shared_utils import log_error
+from shared_utils import TEST_MODE, log_error
+import random
 
 input_file = '../../data/pipeline/1_quality_repos.json'
 checkpoint_dir = "../../data/checkpoints"
@@ -33,6 +34,9 @@ def load_repo_batch(iteration, batch_size=40):
     return repo_batch
 
 def save_checkpoint(iteration, completed_repos, last_completed_repo, total_repos=40, status="in_progress"):
+
+    if TEST_MODE and random.random() < 0.1:
+          raise IOError("Simulated disk space error")
 
     checkpoint_data = {
       "iteration": iteration,
@@ -107,6 +111,7 @@ async def run_iteration(iteration, start_repo):
             "iteration": iteration,
             "error": str(e)
         }, iteration)
+        raise
     # Step 2: Filter with sentence transformer
     print(f"\n=== FILTERING DATA ===")
 
@@ -174,7 +179,17 @@ async def main():
 
     for iteration in range(start_iteration, 10): #TEST change back to 50
         current_start_repo = start_repo if iteration == start_iteration else 0
-        await run_iteration(iteration + 1, current_start_repo)
+        try:
+          await run_iteration(iteration + 1, current_start_repo)
+        except Exception as e:
+          print(f"❌ ITERATION {iteration + 1} FAILED: {e}")
+          log_error("iteration_failure", "run_iteration", {
+              "iteration": iteration + 1,
+              "error": str(e)
+          }, iteration + 1)
+          print(f"⏭️  Continuing to next iteration...")
+          continue
+        
 
         if iteration < 49:
             print(f"Sleeping for 1 hour before iteration {iteration + 1}...")

@@ -16,7 +16,7 @@ REQUEST_DELAY = 0.72
 MAX_REPOS = 100
 MAX_PRS_PER_REPO = 10
 
-TEST_MODE = True
+TEST_MODE = False
 ERROR_RATE = 0.3
 
 def log_error(error_type, component, details, iteration=None):
@@ -28,7 +28,7 @@ def log_error(error_type, component, details, iteration=None):
         "details": details
     }
 
-    error_file = f"../../data/errors/error_log_iter{iteration}.json" if iteration else "../../data/errors/pipeline_errors.json"
+    error_file = f"../../data/errors/error_log_iter{iteration}.json" if iteration else "../../data/errors/pipeline_errors.jsonl"
 
     try:
         with open(error_file, 'a') as f:

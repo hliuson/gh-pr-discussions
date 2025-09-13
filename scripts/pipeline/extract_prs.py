@@ -19,7 +19,6 @@ def getRepos():
 
 async def searchPRsWithComments(session, repo_fullName, max_prs=50):
     try:
-    
       if TEST_MODE and random.random() < ERROR_RATE:
         raise aiohttp.ClientError("Simulated network timeout")
 
@@ -101,7 +100,7 @@ async def getComments(session, repo_fullName, pr_number):
 
   try:
     if TEST_MODE and random.random() < 0.1:
-        raise aiohttp.ClientResponseError(None, None, status=429)
+        raise aiohttp.ClientError("Simulated network timeout")
 
     url = f"https://api.github.com/repos/{repo_fullName}/issues/{pr_number}/comments"
 
@@ -131,6 +130,8 @@ async def getDiff(session, repo_fullName, pr_number):
       """Get PR diff - now async"""
 
       try:
+        if TEST_MODE and random.random() < ERROR_RATE:
+           raise aiohttp.ClientError("Simulated network timeout")
         url = f"https://api.github.com/repos/{repo_fullName}/pulls/{pr_number}"
 
         diff_headers = {
