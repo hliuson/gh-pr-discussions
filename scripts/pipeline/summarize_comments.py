@@ -84,6 +84,7 @@ async def process_comments_concurrently(data, semaphore_limit=5):
                     "unsumarized_comments": comments,
                     "sumarized_length": len(summarized),
                     "summarized_comments": summarized,
+                    "og_comments": item.get("filtered_comments", ""),
                 }
         
         tasks = [process_item(item, i+1) for i, item in enumerate(data)]

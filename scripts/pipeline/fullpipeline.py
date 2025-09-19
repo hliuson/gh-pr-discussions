@@ -144,7 +144,7 @@ async def run_iteration(iteration, start_repo):
     print(f"\n=== TRANSFORMING CRITIQUE DATA ===")
 
     try:
-        critique_data = await transform_critique(summarized_comments, filtered_codediff)
+        critique_data = await transform_critique(iteration, summarized_comments, filtered_codediff)
     except Exception as e:
         log_error("pipeline_failure", "transform_critique", {
             "iteration": iteration,
@@ -177,7 +177,7 @@ async def main():
     start_iteration, start_repo = get_resume_point()
     print(f"Resuming from iteration {start_iteration}, repo {start_repo}")
 
-    for iteration in range(start_iteration, 10): #TEST change back to 50
+    for iteration in range(start_iteration, 3): #TEST change back to 50
         current_start_repo = start_repo if iteration == start_iteration else 0
         try:
           await run_iteration(iteration + 1, current_start_repo)

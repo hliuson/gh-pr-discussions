@@ -259,7 +259,7 @@ async def prDiscussionExtraction(repos, iteration=0, checkpoint_callback=None, s
 
     semaphore = asyncio.Semaphore(15)
     index = 1
-    num_repo = 6 #change to 40
+    num_repo = 20 #change to 40
     pr_per = 10 #change to 60
 
     async with aiohttp.ClientSession() as session:
